@@ -18,7 +18,7 @@ An ecommerce website built with Vue.js, Node.js, MySQL, Bootstrap, and Swiper to
 npm install
 ```
 
-### Compiles and hot-reloads for development
+## Run server
 ```
 npm run serve
 ```
