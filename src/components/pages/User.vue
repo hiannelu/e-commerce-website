@@ -1,43 +1,45 @@
 <template>
   <div>
-    <swiper class="swiper" ref="mySwiper" :options="swiperOptions">
+    <div>
+    <swiper class="swiper" ref="mySwiper" :options="swiperOptions" @slideChange="onSlideChange">
       <swiper-slide><img src="/./pictures/slide_1.jpg"></swiper-slide>
       <swiper-slide><img src="/./pictures/slide_2.jpg"></swiper-slide>
       <swiper-slide><img src="/./pictures/slide_3.jpg"></swiper-slide>
       <swiper-slide><img src="/./pictures/slide_4.jpg"></swiper-slide>
       <div class="swiper-pagination" slot="pagination"></div>
     </swiper>
+    </div>
 
     <div class="category">
       <img :src="dumplingHover ? '/./pictures/dumpling.jpeg' : '/./pictures/dumpling_hover.jpeg'" 
       width="200" height="200" class="img-thumbnail"
       @mouseover="dumplingHover=false"
       @mouseleave="dumplingHover=true"
-      @click="category('Dumplings')">
+      @click="category('Dumpling')">
 
       <img :src="meatHover ? '/./pictures/meat.jpeg' : '/./pictures/meat_hover.jpeg'" 
       width="200" height="200" class="img-thumbnail"
       @mouseover="meatHover=false"
       @mouseleave="meatHover=true"
-      @click="category('Meats')">
+      @click="category('Meat')">
 
       <img :src="veggieHover ? '/./pictures/veggie.jpeg' : '/./pictures/veggie_hover.jpeg'" 
       width="200" height="200" class="img-thumbnail"
       @mouseover="veggieHover=false"
       @mouseleave="veggieHover=true"
-      @click="category('Veggies')">
+      @click="category('Veggie')">
 
       <img :src="fruitHover ? '/./pictures/fruit.jpeg' : '/./pictures/fruit_hover.jpeg'" 
       width="200" height="200" class="img-thumbnail"
       @mouseover="fruitHover=false"
       @mouseleave="fruitHover=true"
-      @click="category('Fruits')">
+      @click="category('Fruit')">
 
       <img :src="dessertHover ? '/./pictures/dessert.jpeg' : '/./pictures/dessert_hover.jpeg'" 
       width="200" height="200" class="img-thumbnail"
       @mouseover="dessertHover=false"
       @mouseleave="dessertHover=true"
-      @click="category('Desserts')">
+      @click="category('Dessert')">
     </div>
 
     <div id="parallax" :style="{'background-position-x':0,'background-position-y': y+'px' }">
@@ -46,7 +48,7 @@
 
     <div class="wrap-products">
       <div v-for="(item, index) in products" :key="index" class="col-sm-3">
-        <div class="card shadow" style="width:13rem; height: 22rem;">
+        <div class="card shadow" style="width:14rem; height: 25rem;">
           <img class="card-img-top" :src="item.image" alt="Card image cap">
           <div class="card-body">
             <div class="card-text">{{ item.name }}</div>
@@ -68,11 +70,6 @@
 
 <script>
 
-  // import $ from 'jquery';
-  import axios from 'axios';
-  const api = 'http://localhost:3036';
-
-
   export default {
     data() {
       return {
@@ -82,11 +79,12 @@
           },
           slidesPerView: 3,
           autoplay: true,
-          speed: 200,
+          speed: 300,
           loop: true,
           centeredSlides: true,
           watchSlidesProgress: true,
-          spaceBetween: 50,
+          spaceBetween: 0,
+          slideActiveClass: 'swiper-slide-active',
           effect: 'coverflow',
           coverflowEffect: {
             rotate: 0,
@@ -105,12 +103,13 @@
         categoryTitle: "Anne's Supermarket",
         products: [],
         quantity: [],
-        totalPrice: []
+        totalPrice: [],
+        addToCart: {},
+        message: 0
       }
     },
     created() {
       this.getProducts();
-      //this.quantity = this.quantity.push(1);
     },
     mounted() {
       window.onload = () => {
@@ -119,10 +118,13 @@
       };
     },
     methods: {
+      onSlideChange() {
+        console.log('slide change');
+      },
       getProducts() {
         const vm = this;
         console.log(this.$route.path)
-        axios.get(`${api}${this.$route.path}`).then(response => {
+        this.$axios.get(`${this.$api}${this.$route.path}`).then(response => {
           response.data.forEach(e => {
             vm.products.push(e);
             vm.quantity.push(1);
@@ -138,7 +140,7 @@
         this.quantity = [];
         this.totalPrice = [];
 
-        axios.get(`${api}${this.$route.path}`).then(response => {
+        this.$axios.get(`${this.$api}${this.$route.path}`).then(response => {
           response.data.forEach(e => {
             if (title == e.category) {
               console.log('title: ' + title)
@@ -169,79 +171,92 @@
       },
       cart(item, index) {
         console.log(item, this.quantity[index])
+        const vm = this;
+        this.addToCart = Object.assign({quantity: this.quantity[index]}, item);
+
+        this.$axios.post(`${this.$api}${this.$route.path}`, { data: vm.addToCart }).then(response => {
+          console.log(response.data)
+          console.log(vm.addToCart)
+          if (response.data.success) {
+            this.$axios.get(`${this.$api}/user/cart`).then(response => {
+              vm.message = response.data.length;
+              console.log(vm.message)
+            })
+            .then(response => {
+              console.log('message: ' + vm.message)
+              console.log(response)
+              this.$emit('update', vm.message)
+            })
+            this.$bvModal.msgBoxOk(
+              <div class="text-center">
+                <i class="far fa-check-circle fa-3x"></i><br />
+                Successfully added!
+              </div>, {
+            title: 'Confirmation',
+            size: 'sm',
+            buttonSize: 'sm',
+            okVariant: 'success',
+            headerClass: 'p-2 border-bottom-0',
+            footerClass: 'p-2 border-top-0',
+            centered: true
+            })
+          }
+        })
       }
     }
   }
 </script>
 
-  <style>
+<style scoped>
 
-    body {
-      background: #eee;
-    }
+  .swiper img {
+    height: 350px;
+    width: auto;
+    margin-top: 30px;
+  }
 
-    .swiper img {
-      height: 350px;
-      width: auto;
-      margin-top: 30px;
-    }
-
-    .category {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 80px 0 80px 0;
-    }
+  .category {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 80px 0 80px 0;
+  }
     
-    #parallax {
-      height: 200px;
-      color: white;
-      font-size: 100px;
-      text-align: center;
-      background-image: url("/./pictures/parallax.jpg");
-      background-attachment: fixed;
-    }
+  #parallax {
+    height: 200px;
+    color: white;
+    font-size: 100px;
+    text-align: center;
+    background-image: url("/./pictures/parallax.jpg");
+    background-attachment: fixed;
+  }
 
-    .product-container {
-      width: 90%;
-      margin: 80px auto;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      font-size: 30px;
-      text-align: center;
-      background: #FEAC5E;  /* fallback for old browsers */
-      background: -webkit-linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E);  /* Chrome 10-25, Safari 5.1-6 */
-      background: linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  .wrap-products {
+    margin: 80px auto;
+    padding: 30px;
+    font-size: 25px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    text-align: center;
+    background: #FEAC5E;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  }
 
-    }
+  .wrap-products img {
+    width: 220px;
+    height: 250px;
+    align-items: center;
+  }
 
-    .wrap-products {
-   
-      margin: 80px auto;
-      padding: 20px;
-      font-size: 30px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      text-align: center;
-      background: #FEAC5E;  /* fallback for old browsers */
-      background: -webkit-linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E);  /* Chrome 10-25, Safari 5.1-6 */
-      background: linear-gradient(to right, #4BC0C8, #C779D0, #FEAC5E); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-    }
+  .card-body {
+    margin-top: -10px;
+  }
 
-    .wrap-products img {
-      width: 200px;
-      height: 200px;
-      align-items: center;
-    }
-    .card-body {
-      margin-top: -20px;
-    }
-    .quantity {
-      margin-top: 10px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-    }
-
+  .quantity {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
     
   </style>

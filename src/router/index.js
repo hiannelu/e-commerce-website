@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-//import Cart from '@/components/Cart.vue'
 import Dashboard from '@/components/Dashboard.vue'
-import Signin from '@/components/pages/Signin.vue'
+import Signin from '@/components/Signin.vue'
 import Admin from '@/components/pages/Admin.vue'
 import User from '@/components/pages/User.vue'
+import Cart from '@/components/pages/Cart.vue'
 
 Vue.use(VueRouter)
 
@@ -20,8 +20,7 @@ const routes = [
     children: [
       {
         path: 'products',
-        component: Admin,
-        meta: { requiresAuth: true }
+        component: Admin
       }
     ]
   },
@@ -31,8 +30,11 @@ const routes = [
     children: [
       {
         path: 'products',
-        component: User,
-        meta: { requiresAuth: true }
+        component: User
+      },
+      {
+        path: 'cart',
+        component: Cart
       }
     ]
   }

@@ -1,14 +1,3 @@
-// const express = require('express')
-// const app = express()
-
-// app.get('/', function (req, res) {
-//   res.send('123')
-// })
-
-// const port = process.env.PORT || 3000
-// app.listen(port)
-// console.log(express)
-
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -16,7 +5,7 @@ const mysql = require('mysql');
 const http = require('http');
 const url = require('url');
 var bodyParser = require('body-parser');
-const port = process.env.PORT || 3036;
+const port = process.env.PORT || 3000;
 
 app.listen(port);
 app.use(cors());
@@ -29,11 +18,6 @@ var connection = mysql.createConnection({
   password: 'root',
   database: 'e_commerce'
 });
-  
-// connection.connect(function(err) {
-//  if (err) throw err;
-//  else console.log('connected!')
-// });
 
 app.get('/signin', function (req, res) {
   connection.query('SELECT * FROM accounts', function (error, results) {
@@ -46,9 +30,54 @@ app.get('/signin', function (req, res) {
 app.get('/user/products', function(req, res) {
     connection.query('SELECT * FROM products', function (error, results) {
     if (error) throw error;
+    console.log('success')
     res.send(results)
     });
   });
+
+app.post('/user/products', function(req, res) {
+  const value = req.body.data;
+  console.log(value)
+  const add = `INSERT INTO cart (image, category, name, quantity, price) 
+    VALUES ('${value.image}', '${value.category}', '${value.name}', '${value.quantity}', ${value.price})`;
+    
+  connection.query(add, function(error, results) {
+    if (error) throw error;
+    res.end('{"success" : "true"}');
+  })
+})
+
+app.get('/user/cart', function(req, res) {
+  connection.query('SELECT * FROM cart', function (error, results) {
+  if (error) throw error;
+  console.log('success')
+  res.send(results)
+  });
+});
+
+app.put('/user/cart/:id', function(req, res) {
+  const value = req.body.data;
+  const productId = req.params.id;
+  const update = `UPDATE cart 
+    SET quantity = ${value.quantity}
+    WHERE ${productId} = id`;
+    
+  connection.query(update, function(error, results) {
+    if (error) throw error;
+    res.end('{"success" : "true"}');
+  })
+})
+
+app.delete('/user/cart/:id', function(req, res) {
+  const productId = req.params.id;
+  console.log(productId)
+  const drop = `DELETE FROM cart WHERE ${productId} = id`;
+  
+  connection.query(drop, function(error, results) {
+    if (error) throw error;
+    res.end('{"success" : "true"}');
+  })
+})
 
 app.get('/admin/products', function(req, res) {
   connection.query('SELECT * FROM products', function (error, results) {
@@ -73,7 +102,7 @@ app.put('/admin/products/:id', function(req, res) {
   const value = req.body.data;
   const productId = req.params.id;
   const update = `UPDATE products 
-    SET image = ${value.image}, category = ${value.category}, name = ${value.name}, price = ${value.price}, description = ${value.description}
+    SET image = '${value.image}', category = '${value.category}', name = '${value.name}', price = ${value.price}, description = '${value.description}'
     WHERE ${productId} = id`;
     
   connection.query(update, function(error, results) {
@@ -83,23 +112,16 @@ app.put('/admin/products/:id', function(req, res) {
 })
 
 app.delete('/admin/products/:id', function(req, res) {
-    const productId = req.params.id;
-    console.log(productId)
-    const drop = `DELETE FROM products WHERE ${productId} = id`;
-    
-    connection.query(drop, function(error, results) {
-      if (error) throw error;
-      res.end('{"success" : "true"}');
-    })
+  const productId = req.params.id;
+  console.log(productId)
+  const drop = `DELETE FROM products WHERE ${productId} = id`;
+  
+  connection.query(drop, function(error, results) {
+    if (error) throw error;
+    res.end('{"success" : "true"}');
   })
-// app.get('/:role', function(req, res) {
-//     const role = req.params.role;
-//     console.log(role)
-//     console.log('test')
-//     res.send(role);
-//   })
+})
 
-// connection.end();
 module.exports = {
   products: this.products
 };
