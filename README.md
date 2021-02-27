@@ -8,10 +8,10 @@ An ecommerce website built with Vue.js, Node.js, MySQL, Bootstrap, and Swiper to
 
 ## Login info
 
-| Role  |     Username    | Password |
-| ----- | --------------- | -------- |
-| Admin | admin@gmail.com |   123    |
-| User  | user@gmail.com  |   123    |
+| Role  |      Username     | Password |
+| ----- | ----------------- | -------- |
+| Admin | `admin@gmail.com` |   123    |
+| User  | `user@gmail.com`  |   123    |
 
 ## Project setup
 ```
