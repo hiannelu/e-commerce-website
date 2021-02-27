@@ -1,10 +1,7 @@
 # vue2_e-commerce
 
 ## Project demo
-
-<div align="center">
-  <a href="https://www.youtube.com/watch?v=XKwar4MTj0I&feature=youtu.be"><img src="https://user-images.githubusercontent.com/66325855/109389426-83742d00-7947-11eb-92ee-ccb8141b115c.png" alt="Project demo" width="600" height="380"></a>
-</div>
+<a href="https://www.youtube.com/watch?v=XKwar4MTj0I&feature=youtu.be"><img src="https://user-images.githubusercontent.com/66325855/109389426-83742d00-7947-11eb-92ee-ccb8141b115c.png" alt="Project demo" width="600" height="380"></a>
 
 ## Project setup
 ```
